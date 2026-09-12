@@ -628,7 +628,7 @@ Scene_OmoriTitleScreen.prototype.start = function() {
     this._lightBulbLinesSprite.opacity = 255;
     for (var i = 0; i < this._titleCommands.length; i++) {
       var win = this._titleCommands[i];
-      win.y = (Graphics.height - win.height) - 15;
+      win.y = (Graphics.height - win.height) - 15 + 2; // row lowered 20px (retail height)
       win.opacity = 255;
       win.contentsOpacity = 255;
     };
@@ -716,7 +716,7 @@ Scene_OmoriTitleScreen.prototype.start = function() {
       var duration = 30;
       var obj = this._titleCommands[index];
       obj.select(-1)
-      var data = { obj: obj, properties: ['y', 'opacity', 'contentsOpacity'], from: {y: obj.y, opacity: obj.opacity, contentsOpacity: obj.contentsOpacity}, to: {y: (Graphics.height - obj.height) - 22, opacity: 255, contentsOpacity: 255}, durations: {y: duration, opacity: duration, contentsOpacity: duration}}
+      var data = { obj: obj, properties: ['y', 'opacity', 'contentsOpacity'], from: {y: obj.y, opacity: obj.opacity, contentsOpacity: obj.contentsOpacity}, to: {y: (Graphics.height - obj.height) - 15 + 2, opacity: 255, contentsOpacity: 255}, durations: {y: duration, opacity: duration, contentsOpacity: duration}}
       data.easing = Object_Movement.easeOutCirc;
       this.move.startMove(data);
     }.bind(this, i))
@@ -1072,7 +1072,7 @@ Scene_OmoriTitleScreen.prototype.onCategoryCancel = function() {
       // Set Duration
       var duration = 15;
       var obj = this._titleCommands[i];
-      var data = { obj: obj, properties: ['y', 'opacity', 'contentsOpacity'], from: {y: obj.y, opacity: obj.opacity, contentsOpacity: obj.contentsOpacity}, to: {y: (Graphics.height - obj.height) - 22, opacity: 255, contentsOpacity: 255}, durations: {y: duration, opacity: duration, contentsOpacity: duration}}
+      var data = { obj: obj, properties: ['y', 'opacity', 'contentsOpacity'], from: {y: obj.y, opacity: obj.opacity, contentsOpacity: obj.contentsOpacity}, to: {y: (Graphics.height - obj.height) - 15 + 2, opacity: 255, contentsOpacity: 255}, durations: {y: duration, opacity: duration, contentsOpacity: duration}}
       data.easing = Object_Movement.easeOutCirc;
       this.move.startMove(data);
     };
@@ -1340,6 +1340,14 @@ sings || {};
   // // this._textMask.endFill();
 
   // this._expandLightCount = 0;
+
+  // this._titleTextSprite.mask = this._textMask
+
+  // this._textMask.x = 155 - 10
+  // this._textMask.y = 110
+
+  // this._titleTextContainerSprite.addChild(this._textMask)
+unt = 0;
 
   // this._titleTextSprite.mask = this._textMask
 
