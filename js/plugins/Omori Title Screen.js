@@ -416,17 +416,24 @@ Scene_OmoriTitleScreen.prototype.createTitleCommands = function() {
   this._titleCommands = [];
   // Text Array
   var textList = LanguageManager.getMessageData("XX_BLUE.Omori_Title_Screen").commands
-  // Keep the original fixed command hit boxes. Localized labels are drawn
-  // inside them; expanding the windows makes adjacent touch areas overlap.
-  var buttonW = Math.round(156 * this._titleScaleX);
-  var buttonSpacing = Math.round(169 * this._titleScaleX);
-  var centerX = Math.floor((Graphics.width - buttonW * textList.length) / 2);
-  var nextButtonX = Math.max(0, centerX);
+  var buttonW = 160 - 40; // 120px: box hugs the label like retail
+  var buttonSpacing = 169;
+  // Center the whole row like retail: left = (W - (spacing*(n-1) + width)) / 2
+  var totalW = buttonSpacing * (textList.length - 1) + buttonW;
+  var nextButtonX = Math.max(0, Math.floor((Graphics.width - totalW) / 2));
   for (var i = 0; i < textList.length; i++) {
     var win = new Window_OmoTitleScreenBox(textList[i]);
     win.width = buttonW;
     win.createContents();
     win.refresh();
+    // Shrink the box to fit shorter labels (e.g. OPTIONS) so every box hugs
+    // its text; never wider than the 120px baseline the row is centered on.
+    var labelW = Math.ceil(win.textWidth(win._text)) + 28;
+    if (labelW < win.width) {
+      win.width = Math.max(96, labelW);
+      win.createContents();
+      win.refresh();
+    }
     this._titleCommands[i] = win;
     win.x = nextButtonX;
     nextButtonX += buttonSpacing;
@@ -1118,10 +1125,9 @@ Window_OmoTitleScreenBox.prototype.initialize = function(text = '') {
   // Set Set
   this._text = text;
   // Super Call
-  Window_Selectable.prototype.initialize.call(this, 0, 0, 160 - 30, 30);
-  // Keep the original 640x480 command hit boxes. A wider box makes the
-  // neighboring title buttons overlap and steals their touch area.
-  this.width = 156;
+  Window_Selectable.prototype.initialize.call(this, 0, 0, 160 - 40, 30);
+  // 120px window: the black box behind the label hugs the text like the
+  // retail title screen (156px made the box stick out well past the text).
   this.createContents();
   // Set Opacity
   this.opacity = 0;
@@ -1138,7 +1144,12 @@ Window_OmoTitleScreenBox.prototype.initialize = function(text = '') {
 //=============================================================================
 Window_OmoTitleScreenBox.prototype.standardPadding = function() { return 4; }
 Window_OmoTitleScreenBox.prototype.isUsingCustomCursorRectSprite = function() { return true; }
-Window_OmoTitleScreenBox.prototype.customCursorRectXOffset = function() { return Math.round(-35 * (Graphics.width / 640)); }
+Window_OmoTitleScreenBox.prototype.customCursorRectXOffset = function() {
+  // The selection hand sits in the gap to the LEFT of the box, pointing at
+  // it (sprite is center-anchored). Centering on the window would drop the
+  // hand on top of the label, so keep the original left-side offset.
+  return Math.round(-35 * (Graphics.width / 640));
+}
 Window_OmoTitleScreenBox.prototype.customCursorRectYOffset = function() { return Math.round(-7 * (Graphics.height / 480)); }
 //=============================================================================
 // * Set Text
@@ -1237,6 +1248,56 @@ Window_OmoTitleScreenBox.prototype.refresh = function() {
 //   } else {
 //     // Initialize Easings
 //     data.easings = data.easings || {};
+//   };
+//   // Add Data to list
+//   this._list.push(data);
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // this._lightBulbSprite.y = 0;
+  // this._lightBulbSprite.setFrame(277, 702, 68, 150)
+
+  // this._viewingSprite = new Sprite(ImageManager.loadPicture('OMO_TITLE_1'))
+  // this._viewingSprite.x = 250;
+  // this.addChild(this._viewingSprite)
+
+  // this._centerSprite = new Sprite(new Bitmap(1, Graphics.height))
+  // this._centerSprite.x = Graphics.width / 2
+  // this._centerSprite.bitmap.fillAll('rgba(255, 0, 0, 1)')
+  // this.addChild(this._centerSprite)
+
+
+  // // this._titleTextSprite.opacity = 255;
+  // // this._titleTextContainerSprite.opacity = 255
+
+  // // Face Mask
+  // this._textMask = new PIXI.Graphics();
+  // // this._textMask.beginFill(0xFFF);
+  // // this._textMask.drawCircle(0, 0, 100)
+  // // // this._textMask.drawRect(0, 0, 100, 200);
+  // // this._textMask.endFill();
+
+  // this._expandLightCount = 0;
+
+  // this._titleTextSprite.mask = this._textMask
+
+  // this._textMask.x = 155 - 10
+  // this._textMask.y = 110
+
+  // this._titleTextContainerSprite.addChild(this._textMask)
+sings || {};
 //   };
 //   // Add Data to list
 //   this._list.push(data);
