@@ -85398,6 +85398,40 @@ window.onload = function() {
         bitmap._setDirty();
     }
 
+    // --- Copying artwork out of a supersampled bitmap ----------------------
+    // Plugins that lift drawn text off a window's contents call blt() with
+    // rects in logical units -- the battle log's Sprite_ScrollingText does
+    // exactly that to turn each log line into its own sprite:
+    //
+    //     var bitmap = new Bitmap(this.lineWidth(), textData.height);
+    //     bitmap.blt(this._window.contents, 0, 0, bitmap.width, bitmap.height, 0, 0);
+    //
+    // drawImage() knows nothing about __textScale, so it copied that logical
+    // rect 1:1 out of a canvas that is q times bigger. In fullscreen that made
+    // the battle log eat the bottom half of every line -- 55% of the glyph rows
+    // and 64% of the width survived, which is the 'What will OMORI and friends
+    // do?' half-cut. Scale the source rect by q, and lift the destination to q
+    // as well so the copy stays crisp instead of arriving downscaled.
+    var _blt = Bitmap.prototype.blt;
+    Bitmap.prototype.blt = function (source, sx, sy, sw, sh, dx, dy, dw, dh) {
+        var q = source && source.__textScale;
+        if (!q || q === 1) return _blt.apply(this, arguments);
+        dw = dw || sw;
+        dh = dh || sh;
+        // The original's bounds guard, in logical units -- which is what the
+        // source reports through the patched width/height getters above.
+        if (sx >= 0 && sy >= 0 && sw > 0 && sh > 0 && dw > 0 && dh > 0 &&
+                sx + sw <= source.width && sy + sh <= source.height) {
+            scaleBitmap(this, q);
+            this._context.globalCompositeOperation = 'source-over';
+            // Source rect in device pixels; destination in logical user space,
+            // which the context's q transform turns back into device pixels.
+            this._context.drawImage(source._canvas, sx * q, sy * q, sw * q, sh * q,
+                                    dx, dy, dw, dh);
+            this._setDirty();
+        }
+    };
+
     // --- Walk a scene graph for windows ------------------------------------
     function walkWindows(node, cb) {
         if (!node) return;
